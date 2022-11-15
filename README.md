@@ -15,4 +15,4 @@ This is the implementation of the paper Process Signature Characterization and A
 
 ## Personalized PCA and t-SNE
 
-Double click the main.ipynb file, it will automatically launch in google Colab. Follow the instructions there to perform analysis.
+Double click the main.ipynb file in google drive, it will automatically launch in google Colab. Follow the instructions there to perform analysis.
