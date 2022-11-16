@@ -7,7 +7,7 @@ This is the implementation of the paper Process Signature Characterization and A
 
 - Then unzip it.
 
-- Use the matlab file proprocess.m to preprocess the data.
+- Use the matlab file proprocess.m to preprocess the data. Change the name variable on the second line to the .mat to be processed.
 
 - copy every .pkl file into images\ folder.
 
