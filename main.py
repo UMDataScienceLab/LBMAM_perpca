@@ -164,7 +164,6 @@ class Experiment():
                                     reconstruct_cat[i][j] *= norms[i][j]
                                     reconstruct_full[i][j] *= norms[i][j]
                                     Y[i][j] *= norms[i][j]
-                                    S[i].lin_mat[j] *= norms[i][j]
                             else:
                                 for j in range(len(reconstruct_bg[i][0])):
                                     reconstruct_bg[i][:,j] *= norms[i][j]
@@ -172,7 +171,6 @@ class Experiment():
                                     reconstruct_full[i][:,j] *= norms[i][j]
 
                                     Y[i][:,j] *= norms[i][j]
-                                    S[i].lin_mat[:,j] *= norms[i][j]
                           
                         original = Y[i].detach().numpy()
                    
@@ -186,7 +184,7 @@ class Experiment():
                                 bg_img = torchimgpro.reconstruct_picture(reconstruct_bg[i],folder+'recons_bg_%s.png'%i,args=args)
                                 torchimgpro.only_show_save(bg_img,folder+'recons_bg_%s.png'%i,args=args)
                                 torchimgpro.only_show_save(full_img-bg_img,folder+'recons_cat_%s.png'%i,args=args)
-                                torchimgpro.show_save(original,folder+'a_original_%s.png'%i,args=args)
+                                #torchimgpro.show_save(original,folder+'a_original_%s.png'%i,args=args)
 
                             else:   
                                 torchimgpro.show_save(reconstruct_bg[i],folder+'recons_bg_%s.png'%i,args=args)
