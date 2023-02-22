@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch.nn as nn
 import torch.optim as optim
+import os
+
 #import torch.nn.utils.parametrizations 
 
 from solver import *
@@ -218,7 +220,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args = vars(args)
     if args['logoutput']:
-        import os
         from misc import Tee
         import time
         import sys
