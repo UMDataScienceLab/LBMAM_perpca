@@ -3,7 +3,6 @@ import copy
 import random
 import torch
 import numpy as np
-import matplotlib.pyplot as plt
 import torch.nn as nn
 import torch.optim as optim
 import time
@@ -47,8 +46,8 @@ def lg_matrix_factorization_projgd(Y,args):
     if args["optim"] == "SGD":
         optim = {k:torch.optim.SGD(parlist[k], lr=args["lr"], weight_decay=args["wd"]) for k in alliters}
     else:
-        optim = {k:torch.optim.Adam(parlist[k], lr=args["lr"]) for k in alliters}
-        scheduler = {k:MyReduceLROnPlateau(optim[k], verbose=False, patience=1) for k in alliters}
+        raise Exception('Error: this optimizer is not implemented')
+
     if "tensorboard" in args.keys():
         writer = SummaryWriter()
     
@@ -64,8 +63,7 @@ def lg_matrix_factorization_projgd(Y,args):
             optim[i].zero_grad()
             lossi.backward()
             optim[i].step()
-            if args["optim"] == "Adam":
-                scheduler[i].step()
+            
             tot_loss += lossi.item()
 
           

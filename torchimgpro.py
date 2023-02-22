@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 from PIL import Image
-#img = Image.open('data/stinkbug.png')
 import numpy as np
 import copy
 import os
@@ -129,23 +128,19 @@ def position2momentum(Y):
         res[ki]=torch.tensor(cbd)
     return res
 
-def r2handdictionary(Y, dictmult=10, sigma=0.1):
+def r2handdictionary(Y, dictsize=1000, sigma=1):
     if isinstance(Y, list):
         N = len(Y)
         alliters = list(range(N))
     else:
         alliters = Y.keys()
     # generate dictionaries
-    gap = max(1,len(alliters)//dictmult)
-    dictionary = []
+    tmax = 0
     for i,ki in enumerate(alliters):
-        if i%gap == 0:
-            dictionary.append(Y[ki])
-    dictionary = torch.cat(dictionary,dim=1)
-    largeidx = torch.where(torch.norm(dictionary, dim=0) > 1e-4)[0]
-    dictionary = dictionary[:,largeidx]
-    tmax = torch.max(dictionary)
-    dictionary = torch.abs(torch.randn(len(Y[ki]),10000))*tmax/3
+        if torch.max(Y[ki]) > tmax:
+            tmax = torch.max(Y[ki])    
+    #tmax = torch.max(dictionary)
+    dictionary = torch.abs(torch.randn(len(Y[ki]),dictsize))*tmax/3
     print("Dictionary built with dimension %s x %s"%(dictionary.shape[0],dictionary.shape[1]))
     with torch.no_grad():
         res = dict()
@@ -155,7 +150,7 @@ def r2handdictionary(Y, dictmult=10, sigma=0.1):
             res[ki]= torch.exp(-0.5*dist**2/sigma**2)
     return res, dictionary
 
-def h2r(h, dictionary, sigma=0.1, eps=1e-3):
+def h2r(h, dictionary, sigma=1, eps=1e-3):
     (d,ndic) = dictionary.shape
     (ndic,nsample) = h.shape
     with torch.no_grad():
@@ -168,11 +163,8 @@ def h2r(h, dictionary, sigma=0.1, eps=1e-3):
             znew = dictionary@coeff # d x nsample
             if torch.norm(znew-z)<1e-5:
                 break
-            #print(i,torch.norm(z),torch.norm(znew-z)) 
             # use exponential averaging to stablize the iterate
-            z = (1-beta)*z + beta*znew
-            #z += znew       
-            
+            z = (1-beta)*z + beta*znew            
     return znew
 
 def hdict2r(Y, dictionary, sigma=0.1):
@@ -212,9 +204,6 @@ def reconstruct_picture(pic,name,cutoff_up=1e6,cutoff_low=-1e6,args={}):
         return abs(fft3)
     elif "reshuffle" in args and args["reshuffle"]:
         if "kernel" in args and args["kernel"]:
-            #print(picture.shape)
-            #print(torch.tensor(picture).shape)
-            #print(args['kerneldict'].shape)
             picture = h2r(torch.tensor(picture), args['kerneldict'], args['sigma']).numpy()
         picture = shuffleback(picture, args["n1"], args["n2"], args["k1"], args["k2"])
         picture[picture>cutoff_up] = cutoff_up
@@ -247,9 +236,6 @@ def show_save(pic,name,cutoff_up=1e6,cutoff_low=-1e6,args={}):
         plt.show()
     elif "reshuffle" in args and args["reshuffle"]:
         if "kernel" in args and args["kernel"]:
-            #print(picture.shape)
-            #print(torch.tensor(picture).shape)
-            #print(args['kerneldict'].shape)
             picture = h2r(torch.tensor(picture), args['kerneldict'], args['sigma']).numpy()
        
         picture = shuffleback(picture, args["n1"], args["n2"], args["k1"], args["k2"])
@@ -266,39 +252,6 @@ def show_save(pic,name,cutoff_up=1e6,cutoff_low=-1e6,args={}):
         plt.axis('off')
         plt.savefig(name, bbox_inches='tight')
         plt.show()
-
-def show_fft():
-    import matplotlib.pyplot as plt
-    Y = load_girl_data()
-    image = Y[0].numpy()
-    fft2 = fftpack.fft2(image)
-    print(fft2)
-    fft2r = np.real(fft2)
-    (n1,n2)=fft2r.shape
-    fft2img = np.imag(fft2)
-    cbd = np.concatenate((fft2r,fft2img))
-    u,s,vt = np.linalg.svd(cbd,full_matrices=False)
-    print(u.shape,s.shape,vt.shape)
-    s[10:]*=0
-    smat = np.diag(s)
-    recons = u@smat@vt
-    fftrecons = recons[:n1,:]+np.array([1j])*recons[n1:,:]
-
-
-    plt.imshow(np.log10(abs(fftrecons)))
-    plt.savefig('fft.png')
-    fft3 = fftpack.ifft2(fftrecons)
-    plt.imshow(abs(fft3))
-    plt.savefig('fft3.png')
-
-    u,s,vt = np.linalg.svd(image,full_matrices=False)
-    #print(u.shape,s.shape,vt.shape)
-    s[10:]*=0
-    smat = np.diag(s)
-    recons = u@smat@vt
-    plt.imshow(recons)
-    plt.savefig('fft4.png')
-
 
 if __name__ == "__main__":
     load_thermal_data(dict())
