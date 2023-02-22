@@ -21,12 +21,18 @@ def subspace_error(U,V):
     with torch.no_grad():    
         pu = U@torch.inverse(U.T@U)@U.T
     
-        #pu = U.lin_mat@torch.inverse(U.lin_mat.T@U.lin_mat)@U.lin_mat.T
         pv = V.lin_mat@torch.inverse(V.lin_mat.T@V.lin_mat)@V.lin_mat.T
         return torch.norm(pu-pv).item()
 
 
 def lg_matrix_factorization_projgd(Y,args):
+    '''
+    This is the solver of personalized pca in matrix formulation.
+    Y is a dictionary in the form of {name: data}
+    It will return the recovered Ug, Vg, Ul, Vl
+
+    '''
+
     if isinstance(Y, list):
         N = len(Y)
         alliters = list(range(N))
@@ -56,6 +62,8 @@ def lg_matrix_factorization_projgd(Y,args):
         
         tot_loss = 0
         tot_reg = 0
+
+        #gradient descent step
         for i in alliters:
             pred = Ug[i].lin_mat@Vg[i].lin_mat.T+ Ul[i].lin_mat@Vl[i].lin_mat.T 
            
@@ -66,14 +74,17 @@ def lg_matrix_factorization_projgd(Y,args):
             
             tot_loss += lossi.item()
 
-          
+        # the averaging and correction step
         with torch.no_grad():
             Ug_avg.lin_mat *= 0
             Ug_avg.lin_mat += sum([Ug[i].lin_mat for i in alliters])/N
-            projection = Ug_avg.lin_mat@torch.inverse(Ug_avg.lin_mat.T@Ug_avg.lin_mat)@Ug_avg.lin_mat.T
+            pj0 = torch.inverse(Ug_avg.lin_mat.T@Ug_avg.lin_mat)@Ug_avg.lin_mat.T
+            
+            projection = Ug_avg.lin_mat@pj0
             for i in alliters:
                 Ug[i].lin_mat *= 0
                 Ug[i].lin_mat += Ug_avg.lin_mat
+                Vg[i].lin_mat += Vl[i].lin_mat@Ul[i].lin_mat.T@pj0.T
                 Ul[i].lin_mat -= projection@Ul[i].lin_mat
 
    
