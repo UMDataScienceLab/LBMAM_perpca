@@ -134,11 +134,8 @@ class Experiment():
                                     Y[i][:,j] /= normy
                                     ni.append(normy)
                                 norms[i]=ni
-                                
-                    
-
               
-                Ug,Vg,Ul,Vl,S = lg_matrix_factorization_subgd(Y, args)
+                Ug,Vg,Ul,Vl,S = lg_matrix_factorization_projgd(Y, args)
                 print("decomposing finished")
                 names = [ki for ki in Y.keys()]
                 Vlist = [Vl[ki].lin_mat.detach().numpy() for ki in Y.keys()]

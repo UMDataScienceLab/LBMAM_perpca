@@ -20,7 +20,7 @@ def load_thermal_data(resdict):
     from os import listdir
     from os.path import isfile, join
     import re    
-    srcpath = r'images_ds/test1_thermal/'
+    srcpath = r'images/'
     onlyfiles = [join(srcpath, f) for f in listdir(srcpath) if isfile(join(srcpath, f))]
     name_pattern = re.compile(".Build([0-9]+)_Layer([0-9]+)_([0-9]+).pkl")
     totnum = 0
