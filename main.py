@@ -97,46 +97,26 @@ class Experiment():
                     args["k1"] = d1 // n1
                     args["k2"] = d2 // n2
                     Y = {ki:torchimgpro.reshuffle(Y[ki], n1, n2) for ki in Y.keys()}
-                '''
-                
-                for ki in Y.keys(): 
-                    print('shape in R')
-                    print(Y[ki].shape)
-                    break
-                '''
+              
                 if args['kernel']:
                     Y, imgdict = torchimgpro.r2handdictionary(Y, args['dictsize'], args['sigma'])
                     args['kerneldict'] = imgdict
-                #print("a3")
-                '''
-                for ki in Y.keys(): 
-                    print('shape in H')
-                    print(Y[ki].shape)
-                    print(Y[ki])
-                    break
-                print(imgdict.shape)
-                return 
-                '''
+               
                 if isinstance(Y, list):
                     N = len(Y)
                     alliters = list(range(N))
                 else:
                     alliters = Y.keys()
                 N = len(alliters)
-                #print("a3")
-
-                #print(Y[0])
+               
                 for ki in Y.keys(): 
                     print(Y[ki].shape)
                     break
-                #maxelement = torch.max(torch.cat(Y).abs()).item()
-                #minelement = torch.min(torch.cat(Y).abs()).item()
-                #Y = add_sparse_noise(Y,0.01,500)
-                #print("a4")
+             
 
                 norms = dict()
                 transmat = []
-                from sqrtm import sqrtm
+                #from sqrtm import sqrtm
                 if args["normalize"]:
                     print("normalize data")
                     with torch.no_grad():
@@ -154,34 +134,20 @@ class Experiment():
                                     Y[i][:,j] /= normy
                                     ni.append(normy)
                                 norms[i]=ni
-                                '''
-                                transmati = sqrtm(Y[i].T@Y[i])
-
-                                Y[i] = Y[i]@torch.inverse(transmati)
-                                transmat.append(transmati)
-                                '''
+                                
                     
 
-                #print(Y[0])
-                #Ug,Vg,Ul,Vl = lg_matrix_factorization(Y, args)
+              
                 Ug,Vg,Ul,Vl,S = lg_matrix_factorization_subgd(Y, args)
                 print("decomposing finished")
                 names = [ki for ki in Y.keys()]
                 Vlist = [Vl[ki].lin_mat.detach().numpy() for ki in Y.keys()]
-                import postprocessing 
-                #postprocessing.spectral_cluster(Vlist, names)
+                
                 reconstruct_bg = {i:(Ug[i].lin_mat@Vg[i].lin_mat.T) for i in alliters}
                 reconstruct_cat = {i:(Ul[i].lin_mat@Vl[i].lin_mat.T) for i in alliters}
                 reconstruct_full = {i:reconstruct_bg[i]+reconstruct_cat[i] for i in alliters}
                 print("images reconstructed")
-                '''
-                for i in range(len(Y)):
-                        for j in range(len(Y[i])):
-                            reconstruct_bg[i][j]*=np.linalg.norm(Y[i][j])
-                            reconstruct_cat[i][j]*=np.linalg.norm(Y[i][j])
-                            #Y[i][j] *=
-                '''
-
+         
                 folder = 'thermaldcpdframes/build_%s_layer_%s/'%(bd,ly)
                 print(folder)
                 if not os.path.exists(folder):
@@ -208,21 +174,9 @@ class Experiment():
 
                                     Y[i][:,j] *= norms[i][j]
                                     S[i].lin_mat[:,j] *= norms[i][j]
-                                '''
-                                reconstruct_bg[i] = reconstruct_bg[i]@transmat[i]
-                                reconstruct_cat[i]= reconstruct_cat[i]@transmat[i]
-                                Y[i] = Y[i]@transmat[i]
-                                z  = S[i].lin_mat@transmat[i]
-                                S[i].lin_mat *= 0
-                                S[i].lin_mat += z
-                                '''
-                        
+                          
                         original = Y[i].detach().numpy()
-                        #print(original)
-                        #plt.imshow(original, cmap='gray')
-                        #plt.axis('off')
-                        #plt.savefig(folder+'original_%s.png'%i, bbox_inches='tight')
-
+                   
                         reconstruct_bg[i] = reconstruct_bg[i].detach().numpy()
                     
                         reconstruct_cat[i] = reconstruct_cat[i].detach().numpy()
