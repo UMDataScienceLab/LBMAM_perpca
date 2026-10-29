@@ -5,7 +5,7 @@ This is the implementation of the paper "Personalized Feature Extraction for Man
 We propose personalized feature extraction (PFE), which separates the features shared across a manufacturing process from the transient features *unique* to each image, and then uses the unique features to detect anomalies.
 
 ## Data
-- Download data (of one layer) from [this link](https://catalog.data.gov/dataset/in-situ-thermography-of-the-metal-bridge-structures-fabricated-for-the-2018-additive-manuf-275ac)
+- Download data (of one layer) from [this link](https://doi.org/10.18434/M31935)
 
 - Then unzip it.
 
